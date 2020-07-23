@@ -103,7 +103,7 @@ WARNING
       setup_language_pack_environment(
         ruby_layer_path: File.expand_path("."),
         gem_layer_path: File.expand_path("."),
-        bundle_path: "vendor/bundle",
+        bundle_path: File.expand_path("./vendor/bundle"),
         bundle_default_without: "development:test"
       )
       allow_git do
@@ -427,11 +427,12 @@ EOF
       set_export_path "PATH", paths, layer
 
       if layer
-        gem_path = "#{layer.path}/#{slug_vendor_base}"
+        core_path = layer.path
       else
-        gem_path = "#{build_path}/#{slug_vendor_base}"
+        core_path = build_path
       end
-      set_export_path "GEM_PATH", gem_path, layer
+
+      set_export_path "GEM_PATH", "#{core_path}/#{slug_vendor_base}", layer
       set_export_default "LANG", "en_US.UTF-8", layer
 
       # TODO handle jruby
@@ -442,10 +443,10 @@ EOF
         set_export_default "JRUBY_OPTS", default_jruby_opts
       end
 
-      set_export_default "BUNDLE_PATH", ENV["BUNDLE_PATH"]
-      set_export_default "BUNDLE_WITHOUT", ENV["BUNDLE_WITHOUT"]
-      set_export_default "BUNDLE_BIN", ENV["BUNDLE_BIN"]
-      set_export_default "BUNDLE_DEPLOYMENT", ENV["BUNDLE_DEPLOYMENT"] if ENV["BUNDLE_DEPLOYMENT"]
+      set_export_default "BUNDLE_PATH", "#{core_path}/vendor/bundle", layer
+      set_export_default "BUNDLE_WITHOUT", ENV["BUNDLE_WITHOUT"], layer
+      set_export_default "BUNDLE_BIN", ENV["BUNDLE_BIN"], layer
+      set_export_default "BUNDLE_DEPLOYMENT", ENV["BUNDLE_DEPLOYMENT"], layer if ENV["BUNDLE_DEPLOYMENT"]
     end
   end
 
@@ -482,7 +483,7 @@ EOF
         set_env_default "JRUBY_OPTS", default_jruby_opts
       end
 
-      set_env_default "BUNDLE_PATH", ENV["BUNDLE_PATH"]
+      set_env_default "BUNDLE_PATH", "#{gem_layer_path}/vendor/bundle"
       set_env_default "BUNDLE_WITHOUT", ENV["BUNDLE_WITHOUT"]
       set_env_default "BUNDLE_BIN", ENV["BUNDLE_BIN"]
       set_env_default "BUNDLE_DEPLOYMENT", ENV["BUNDLE_DEPLOYMENT"] if ENV["BUNDLE_DEPLOYMENT"]
@@ -897,7 +898,7 @@ BUNDLE
 
         bundle_command = String.new("")
         bundle_command << "BUNDLE_WITHOUT=#{ENV["BUNDLE_WITHOUT"]} "
-        bundle_command << "BUNDLE_PATH=#{ENV["BUNDLE_PATH"]} "
+        bundle_command << "BUNDLE_PATH=vendor/bundle "
         bundle_command << "BUNDLE_BIN=#{ENV["BUNDLE_BIN"]} "
         bundle_command << "BUNDLE_DEPLOYMENT=#{ENV["BUNDLE_DEPLOYMENT"]} " if ENV["BUNDLE_DEPLOYMENT"]
         bundle_command << "bundle install -j4"
