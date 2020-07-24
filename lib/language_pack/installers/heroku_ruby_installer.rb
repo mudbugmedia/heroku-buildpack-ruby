@@ -5,7 +5,7 @@ require 'language_pack/shell_helpers'
 class LanguagePack::Installers::HerokuRubyInstaller
   include LanguagePack::ShellHelpers, LanguagePack::Installers::RubyInstaller
 
-  BASE_URL = LanguagePack::Base::VENDOR_URL
+  BASE_URL = "http://p3-inbound.s3.amazonaws.com/heroku-buildpack-ruby"
 
   def initialize(stack)
     @fetcher = LanguagePack::Fetcher.new(BASE_URL, stack)
@@ -23,4 +23,3 @@ class LanguagePack::Installers::HerokuRubyInstaller
     end
   end
 end
-
